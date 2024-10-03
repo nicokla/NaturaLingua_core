@@ -1,6 +1,6 @@
 
 Some youtube channels that have double subtitles
-
+For searching specific videos having both subtitles, you can use LanguageReactor (or make a script looping through the videos of a given youtube channel).
 
 arabic
 	in a nutshell
