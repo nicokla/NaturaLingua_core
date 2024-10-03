@@ -22,17 +22,18 @@ from utils.createPdfs import createPdfYoutube, createPdfMovie
 # - the language you don't know should be renamed "japanese.srt" (even if it is not japanese)
 # if you use .vtt or .xml files as input, use "anglais.vtt" and "japanese.vtt"
 
+
+def createDocsFromMovieSubtitles(language, alphabetId, dirPath):
+	languageCode = getCode(language) #languageToCodes[language]
+	txtFileName = subsToTxt(dirPath, languageCode, alphabetId)
+	createPdfMovie('Titre', txtFileName, txtFileName+'.pdf', language, alphabetId)
+
 # language de depart (inconnu)
 language = 'french'
 # alphabetId = original|roman|both  (alphabet du langage de depart, le langage d'arrive est connu)
 alphabetId = 'original'
 # mettre anglais.srt et japonais.srt dans dirPath ---> dirPath/result.txt ---> dirPath/result.pdf
 dirPath = '/Users/nicolas/Desktop/NaturaLingua/directoryMovies'
-
-def createDocsFromMovieSubtitles(language, alphabetId, dirPath):
-	languageCode = getCode(language) #languageToCodes[language]
-	txtFileName = subsToTxt(dirPath, languageCode, alphabetId)
-	createPdfMovie('Titre', txtFileName, txtFileName+'.pdf', language, alphabetId)
 
 createDocsFromMovieSubtitles(language, alphabetId, dirPath)
 
@@ -48,13 +49,7 @@ createDocsFromMovieSubtitles(language, alphabetId, dirPath)
 # YOUTUBE_KEY=.....
 # where you replace ..... with your Youtube API key.
 
-# language de depart, inconnu
-language = 'english'
-# alphabetId = roman|original|both  (alphabet du langage de depart, le langage d'arrive est connu)
-alphabetId = 'original'
-videoId = 'BkQuosRLSS8'
-languageKnown = 'french'
-outputDir = '/Users/nicolas/Desktop/NaturaLingua/directoryYoutube'
+
 
 def createDocsFromYoutube(videoId, language, languageKnown, alphabetId, outputDir):
 	languageCodes=languageToCodes[language]
@@ -63,6 +58,18 @@ def createDocsFromYoutube(videoId, language, languageKnown, alphabetId, outputDi
 	pdfFileName = f'{outputDir}/{videoId}.pdf'
 	absorbYoutubeVideo(videoId, languageCodes, languageCodesKnown, alphabetId, txtFileName)
 	myPdf = createPdfYoutube(videoId, txtFileName, pdfFileName, language, alphabetId)
+
+
+# language de depart, inconnu
+# transliteration to roman letters exists for those languages :
+# japanese | arabic | korean | greek | chinese | russian | 
+# hindi | persian | thai | hebrew
+language = 'persian'
+# alphabetId = roman | original | both  (alphabet du langage de depart, le langage d'arrive est connu)
+alphabetId = 'roman'
+videoId = 'kP15q815Saw'
+languageKnown = 'english'
+outputDir = '/Users/nicolas/Desktop/NaturaLingua/directoryYoutube'
 
 createDocsFromYoutube(videoId, language, languageKnown, alphabetId, outputDir)
 

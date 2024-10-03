@@ -2,9 +2,9 @@
 
 NaturaLingua can create bilingual documents (.pdf and .txt), to help you to learn new languages.
 
-Example of resulting .pdf and .txt files are in the folder directoryMovies and directoryYoutube.
+Example of resulting .pdf and .txt files are in the folder directoryYoutube.
 
-To create your own bilingual files with the movie or the youtube video you want, the code to use is in main.py
+To create your own bilingual files with the movie or the youtube video you want, the code to use is in main.py. You can get ideas of youtube channels or of movies in the files youtube.txt and movies.txt.
 
 As the input, you can either :
 

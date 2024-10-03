@@ -344,10 +344,10 @@ def subsToTxt(path, languageCode, alphabetId):
 	print('\n'+pathOutput)
 	printOriginal, printRomanized = printOriginalOrRomanized(alphabetId)
 	try:
-		if dico['anglais'][0]!='srt':
+		if dico['anglais'][0]=='vtt' or dico['anglais'][0]=='xml':
 			print('	 netflix\n')
 			subsToTextNetflix(dico['japonais'][1], dico['anglais'][1], pathOutput, languageCode, printOriginal, printRomanized)
-		else:
+		else: # .srt, .ass ---> not netflix (need to synchronize)
 			print('	 not netflix\n')
 			subsToTextNotNetflix(dico['japonais'][1], dico['anglais'][1], pathOutput, languageCode, printOriginal, printRomanized)
 	except Exception as e:

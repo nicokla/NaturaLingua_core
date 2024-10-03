@@ -1,0 +1,83 @@
+
+Some movies you can get subtitles files (.srt or .ass on opensubtitles.org, or/and .vtt or .xml with netflix and devtools/network)
+
+arabic
+	the kite
+	heaven without people
+	very big shot
+	beirut oh beirut
+	ghadi
+chinese
+	a brighter summer day
+	big fish and begonia
+	in the heat of the sun
+	us and them
+French
+	amelie
+	jules et jim
+	les 400 coups
+	les parapluies de cherbourg
+Greek
+	eleni
+	ulysses gaze
+Hebrew
+	shtisel
+	fauda
+Hindi
+	black friday
+	guilty
+	udta punjab
+Italian
+	il sorpasso
+	la dolce vita
+	ladri di biciclette
+	the life ahead
+Japanese
+	Castle in the Sky
+	Chihiro
+	From Up on Poppy Hill
+	Kiki's Delivery Service
+	Mirai no Mirai
+	Mononoke
+	Nausicaa
+	Ponyo
+	Rashomon
+	The Howl Moving Castle
+	The Wind Rises
+	Tokyo godfathers
+	Totoro
+Korean
+	Descendants of the sun - E1
+	Night in paradise
+	Okja
+Persian
+	A separation
+	Leili baa man ast
+	Turtles can fly
+Portuguese
+	Carandiru
+	Central do Brasil
+	Cidade de Deus
+	Ilha das flores
+	Invisible life
+	José e Pilar
+	Pixote
+	The salt of the earth
+Russian
+	Leto
+	Stalker
+	The cranes are flying
+Spanish
+	Roma
+	Sin nombre
+	Ya no estoy aqui
+Thai
+	Monkey Twins - S1E1
+	The girl from nowhere - S1E1
+Turkish
+	Gora
+	The butterfly's dream
+	Vizontele
+Vietnamese
+	Furie
+	The Scent of Green Papaya
