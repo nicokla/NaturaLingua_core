@@ -2,13 +2,17 @@
 import sys
 sys.path.append("/Users/nicolas/Desktop/NaturaLingua")
 from transliterateHehe.languageCodes import languageToCodes, getCode
-from youtube.youtube import absorbYoutubeVideo
+from youtube.youtube import createDocsFromYoutube, absorbYoutubeChannels
 from movies.movies import subsToTxt
 from utils.createPdfs import createPdfYoutube, createPdfMovie
 
 
+# ----------------------------
+# 1) single video / movie
+# -------------------------
+
 ################
-# A) Subtitle files (.SRT or .VTT)
+# 1.A) Subtitle files (.SRT or .VTT)
 ################
 
 # To get subtitle files, 2 techniques :
@@ -40,7 +44,7 @@ createDocsFromMovieSubtitles(language, alphabetId, dirPath)
 
 
 ################
-# B) Youtube video ID
+# 1.B) Youtube video ID
 ################
 
 # to enable this B) code, you first need to
@@ -50,20 +54,6 @@ createDocsFromMovieSubtitles(language, alphabetId, dirPath)
 # where you replace ..... with your Youtube API key.
 
 
-
-def createDocsFromYoutube(videoId, language, languageKnown, alphabetId, outputDir):
-	languageCodes=languageToCodes[language]
-	languageCodesKnown=languageToCodes[languageKnown]
-	txtFileName = f'{outputDir}/{videoId}.txt'
-	pdfFileName = f'{outputDir}/{videoId}.pdf'
-	absorbYoutubeVideo(videoId, languageCodes, languageCodesKnown, alphabetId, txtFileName)
-	myPdf = createPdfYoutube(videoId, txtFileName, pdfFileName, language, alphabetId)
-
-
-# language de depart, inconnu
-# transliteration to roman letters exists for those languages :
-# japanese | arabic | korean | greek | chinese | russian | 
-# hindi | persian | thai | hebrew
 language = 'persian'
 # alphabetId = roman | original | both  (alphabet du langage de depart, le langage d'arrive est connu)
 alphabetId = 'roman'
@@ -73,3 +63,23 @@ outputDir = '/Users/nicolas/Desktop/NaturaLingua/directoryYoutube'
 
 createDocsFromYoutube(videoId, language, languageKnown, alphabetId, outputDir)
 
+
+
+# --------------------------
+# 2) whole youtube channel
+# --------------------------
+
+
+language = 'arabic'
+channelName = languageToChannels[language][0]
+
+listAllVideoIds = absorbChannel(channelName, language)
+
+outputDir = '/Users/nicolas/Desktop/NaturaLingua/directoryYoutube'
+fileName = f'{outputDir}/{language.capitalize()}/{channelName}.json'
+saveVariableAsJson(listAllVideoIds, fileName)
+listAllVideoIds = loadJsonToVariable(fileName)
+
+for videoId in listAllVideoIds[:10]:
+	print(videoId)
+	absorbAndWriteYoutubeVid(videoId, language, alphabetId='roman')

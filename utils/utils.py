@@ -37,3 +37,79 @@ languagesLatines = ['french', 'spanish', 'portuguese', 'italian', 'turkish', 'vi
 languagesNonLatines = ['japanese', 'russian', 'hebrew', 'arabic', 'korean', 'chinese', 'thai', 'persian', 'greek',  'hindi']
 languages = languagesLatines + languagesNonLatines
 
+
+
+
+# -------------
+
+
+from dataclasses import dataclass, asdict, fields # ---> asdict
+from typing import List
+import json
+import os
+os.chdir('/Users/nicolas/Desktop')
+
+
+def dataclass_from_dict(klass, d):
+    try:
+        fieldtypes = {f.name:f.type for f in fields(klass)}
+        return klass(**{f:dataclass_from_dict(fieldtypes[f],d[f]) for f in d})
+    except:
+        return d # Not a dataclass field
+
+
+# ----------------
+
+def saveListOfObjectsAsJson(objectList, fileName="myfile.json"):
+	jsonList = []
+	for o in objectList:
+		o_json = asdict(o)
+		jsonList.append(o_json)
+	out_file = open(fileName, "w")
+	json.dump(jsonList, out_file, indent = 2)
+	out_file.close()
+
+def loadJsonToListOfObjects(classe, fileName="myfile.json"):
+	f = open(fileName, "r")
+	text = f.read()
+	myJsonList = json.loads(text)
+	objectList=[]
+	for o_json in myJsonList:
+		o=dataclass_from_dict(classe, o_json)
+		objectList.append(o)
+	return objectList
+
+
+# saveListOfObjectsAsJson(jeux, 'jeux.json')
+# jeux2 = loadJsonToListOfObjects(Jeu, fileName="jeux.json")
+
+
+# ------------------------
+
+def saveObjectAsJson(o, fileName="myfile.json"):
+	o_json = asdict(o)
+	out_file = open(fileName, "w")
+	json.dump(o_json, out_file, indent = 2)
+	out_file.close()
+
+def loadJsonToObject(classe, fileName="myfile.json"):
+	f = open(fileName, "r")
+	text = f.read()
+	o_json = json.loads(text)
+	o=dataclass_from_dict(classe, o_json)
+	return o
+
+
+# -----------------
+
+
+def saveVariableAsJson(o, fileName="myfile.json"):
+	out_file = open(fileName, "w")
+	json.dump(o, out_file, indent = 2)
+	out_file.close()
+
+def loadJsonToVariable(fileName="myfile.json"):
+	f = open(fileName, "r")
+	text = f.read()
+	o = json.loads(text)
+	return o

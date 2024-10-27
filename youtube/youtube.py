@@ -1,34 +1,51 @@
 
 
+# class Phrase:
+#   def __init__(self, start, original, end, romanized='', style=''):
+#     self.start = start
+#     self.end = end
+#     self.original = original
+#     self.romanized = romanized
+#     self.style = style
+#   def __str__(self) -> str:
+#     debut = getTimeString(self.start)
+#     fin = getTimeString(self.end)
+#     return (f'[{debut} --> {fin}] : {self.original} ({self.romanized}) [style:{self.style}]')
+
+# class YoutubeVideo:
+# 	def __init__(self, title, id, phrasesAnglaises, phrasesJaponaises, languageCode):
+# 		self.title = title
+# 		self.id = id
+# 		self.phrasesAnglaises = phrasesAnglaises
+# 		self.phrasesJaponaises = phrasesJaponaises
+# 		self.languageCode = languageCode
+
+
+
+@dataclass
 class Phrase:
-  def __init__(self, start, original, end, romanized='', style=''):
-    self.start = start
-    self.end = end
-    self.original = original
-    self.romanized = romanized
-    self.style = style
-  def __str__(self) -> str:
-    debut = getTimeString(self.start)
-    fin = getTimeString(self.end)
-    return (f'[{debut} --> {fin}] : {self.original} ({self.romanized}) [style:{self.style}]')
+	start: float = 0
+	end: float = 0
+	original: str = ''
+	romanized: str = ''
+	style: str = ''
 
+@dataclass
 class YoutubeVideo:
-	def __init__(self, title, id, phrasesAnglaises, phrasesJaponaises, language):
-		self.title = title
-		self.id = id
-		self.phrasesAnglaises = phrasesAnglaises
-		self.phrasesJaponaises = phrasesJaponaises
-		self.language = language
-
-class YoutubeChannel:
-	def __init__(self, name, id, videos=[]):
-		self.name = name
-		self.id = id
-		self.videos = videos
+	title: str = ''
+	id: str = ''
+	phrasesAnglaises: List[Phrase] = []
+	phrasesJaponaises: List[Phrase] = []
+	style: str = ''
 
 import sys
 sys.path.append('/Users/nicolas/Desktop/NaturaLingua')
-from utils.utils import save_object, get_object, createNecessaryFolders
+# from utils.utils import * #save_object, get_object, createNecessaryFolders
+import importlib
+import sys
+importlib.reload(sys.modules['utils.utils'])
+from utils.utils import *
+
 
 # ----------------------------------------------
 # 1) 
@@ -196,10 +213,6 @@ def printOriginalOrRomanized(alphabetId):
 def writeFileGeneral(file2, myYoutubeVideo, alphabetId):
 	phrasesAnglaises=myYoutubeVideo.phrasesAnglaises
 	phrasesJaponaises=myYoutubeVideo.phrasesJaponaises
-	# file2.write('\n-------------------------\n')
-	# file2.write(myYoutubeVideo.title+'\n')
-	# file2.write(f'https://youtu.be/{myYoutubeVideo.id}\n')
-	# file2.write('-------------------------\n')
 	printOriginal, printRomanized = printOriginalOrRomanized(alphabetId)
 	i = 0
 	j = 0
@@ -241,16 +254,17 @@ def getManualSub(transcriptList, language):
     transcriptJaponaisFetchable = {}
   return japaneseOk, transcriptJaponaisFetchable
 
+
 # https://testdriven.io/blog/flask-async/
 # async
-def absorbYoutubeVideo(videoId, languageCodes, languageCodesKnown, alphabetId, fileName):
-	file1=open(fileName, 'w+')
+def absorbYoutubeVideo(videoId, language, languageKnown, alphabetId):
+	languageCodes=languageToCodes[language]
+	languageCodesKnown=languageToCodes[languageKnown]
 	try:
 		transcriptList = YouTubeTranscriptApi.list_transcripts(videoId)
 	except Exception as e:
 		print('%s no subs' % videoId)
-		file1.close()
-		return fileName
+		return {}
 	for languageCode in languageCodesKnown:
 		englishOk, transcriptAnglaisFetchable = getManualSub(transcriptList, languageCode)
 		print('languageCode: %s / englishOk: %s' % (languageCode, englishOk))
@@ -267,17 +281,103 @@ def absorbYoutubeVideo(videoId, languageCodes, languageCodesKnown, alphabetId, f
 			transcriptJaponais = transcriptJaponaisFetchable.fetch()
 		except Exception as e:
 			print('%s erreur bizarre' % videoId)
-			file1.close()
-			return fileName
+			return {}
 	else:
 		print('%s snif' % videoId)
-		return fileName
+		return {}
 	print('%s youpi' % videoId)
 	phrasesJaponaises = youtubeToPhraseJap_all(transcriptJaponais, languageCode) # await
 	phrasesAnglaises = youtubeToPhraseAng_all(transcriptAnglais, languageCode)
-	myYoutubeVideo=YoutubeVideo('', videoId, phrasesAnglaises, phrasesJaponaises, languageCode)
-	writeFileGeneral(file1, myYoutubeVideo, alphabetId)
+	myYoutubeVideo = YoutubeVideo('', videoId, phrasesAnglaises, phrasesJaponaises, languageCode)
+	return myYoutubeVideo
+
+
+from utils.createPdfs import createPdfYoutube
+
+def writeYoutubeVideo(video, outputDir, alphabetId, language):
+	txtFileName = f'{outputDir}/{video.id}.txt'
+	createNecessaryFolders(txtFileName)
+	file1=open(txtFileName, 'w+')
+	writeFileGeneral(file1, video, alphabetId)
 	file1.close()
-	postProcessing(fileName, languageCode)
-	return fileName
+	languageCode = languageToCodes[language][0]
+	postProcessing(txtFileName, languageCode)
+	pdfFileName = f'{outputDir}/{video.id}.pdf'
+	myPdf = createPdfYoutube(video.id, txtFileName, pdfFileName, language, alphabetId)
+
+
+def absorbAndWriteYoutubeVid(videoId, language, 
+    languageKnown='english', 
+    alphabetId='roman',
+	  rootDir='/Users/nicolas/Desktop/NaturaLingua/directoryYoutube'):
+	outputDir=f'{rootDir}/{language.capitalize()}'
+	video = absorbYoutubeVideo(videoId, language, languageKnown, alphabetId)
+	writeYoutubeVideo(video, outputDir, alphabetId, language)
+
+
+
+###########################
+#    whole ytb channels   #
+###########################
+
+
+languageToChannels={
+	'arabic':['Our Family Life','In a nutshell'],
+	'chinese':['Magic Ingredients','Mandarin With Miss Lin','美食作家王刚', 'In a nutshell'],
+	'tagalog':['In a nutshell'],
+	'french':['Piece of French', 'In a nutshell'],
+	'greek':['Astronio','Easy Do Channel','Mikeius Official','Panos Ioannidis','Καθημερινή Φυσική', 'In a nutshell'],
+	'hebrew':['Piece of French', 'In a nutshell'],
+	'hindi':['Carry Minati','In a nutshell'],
+	'italian':['Dario Bressanini','Italia Squisita','Learn Italian with Lucrezia', 'In a nutshell'],
+	'japanese':['Ask Japanese','Kan and Aki','Kemushi Chan','Meshclass','Miku Real Japanese','Onomappu','Suchi Ramen Riku','Tokyo Veg Life', 'In a nutshell'],
+	'korean':['Jolly','Korean Film','In a nutshell'],
+	'persian':['In a nutshell'],
+	'portuguese':['Juliana Selem','Porta dos Fundos', 'In a nutshell'],
+	'russian':['Oreli Reshka','Varlamov','Vdud', 'In a nutshell'],
+	'spanish':['Hola Soy German','Spanish After Hours','In a nutshell'],
+	'thai':['Go Went Go','spoke dark tv','Bie The Ska','Point of View','Dr Amp Team'],
+	'turkish':['Barış Özcan','Coşkun Aral Anlatıyor', 'So Turkish','In a nutshell'],
+	'vietnamese':['dhnowf','Dustin On The Go','Oops Banana'],
+	'english':['The school of life', 'Ballinger family','In a nutshell']
+}
+
+
+def absorbChannel(channelName, language, languageKnown='english'):
+	print('absorbChannel',channelName,language)
+	languageCodes = languageToCodes[language]
+	languageKnownCodes = languageToCodes[languageKnown]
+	channelId, myVideoIdsAndNames = getAllVideoIdsAndNames(channelName)
+	listAllVideoIds = []
+	aaa=-1
+	for videoId, videoTitle in myVideoIdsAndNames:
+		aaa+=1
+		try:
+			transcriptList = YouTubeTranscriptApi.list_transcripts(videoId)
+		except Exception as e:
+			print(str(aaa)+'/'+str(len(myVideoIdsAndNames))+', no subs')
+			continue
+		for languageCode in languageCodes:
+			japaneseOk, transcriptJaponaisFetchable = getManualSub(transcriptList, languageCode)
+			if japaneseOk:
+				break
+		for languageKnownCode in languageKnownCodes:
+			englishOk, transcriptAnglaisFetchable = getManualSub(transcriptList, languageKnownCode)
+			if englishOk:
+				break
+		if(englishOk and japaneseOk):
+			try:
+				transcriptAnglais = transcriptAnglaisFetchable.fetch()
+				transcriptJaponais = transcriptJaponaisFetchable.fetch()
+			except Exception as e:
+				print(str(aaa)+'/'+str(len(myVideoIdsAndNames))+', erreur bizarre')
+				continue
+		else:
+			print(str(aaa)+'/'+str(len(myVideoIdsAndNames))+', snif: ' + videoId)
+			continue
+		print(str(aaa)+'/'+str(len(myVideoIdsAndNames))+', youpi: ' + videoId)
+		listAllVideoIds.append(videoId)
+	return listAllVideoIds
+
+
 
