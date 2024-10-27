@@ -61,8 +61,7 @@ videoId = 'kP15q815Saw'
 languageKnown = 'english'
 outputDir = '/Users/nicolas/Desktop/NaturaLingua/directoryYoutube'
 
-createDocsFromYoutube(videoId, language, languageKnown, alphabetId, outputDir)
-
+absorbAndWriteYoutubeVid(videoId, language, languageKnown, alphabetId, outputDir)
 
 
 # --------------------------
