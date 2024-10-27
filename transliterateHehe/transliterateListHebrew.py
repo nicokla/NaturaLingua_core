@@ -50,13 +50,13 @@ headers = {
 
 async def getNikud2(session, sentence):
 	async with session.post('https://nakdan-4-0.loadbalancer.dicta.org.il/api', headers=headers, data=getData(sentence)) as resp:
-		# try:
-		myjson = await resp.json()
-		words=list(map(getFirstOption, myjson))
-		sentence2=functools.reduce(lambda a, b: a+b, words)
-		return sentence2
-		# except Exception as e:
-		# 	return sentence
+		try:
+			myjson = await resp.json()
+			words=list(map(getFirstOption, myjson))
+			sentence2=functools.reduce(lambda a, b: a+b, words)
+			return sentence2
+		except Exception as e:
+			return sentence
 
 def improve(sentence):
   return sentence.replace('\n', ' ').strip()

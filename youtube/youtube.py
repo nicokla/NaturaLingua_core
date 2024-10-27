@@ -21,6 +21,8 @@
 # 		self.languageCode = languageCode
 
 
+from dataclasses import dataclass, asdict, fields
+from typing import List
 
 @dataclass
 class Phrase:
@@ -28,22 +30,20 @@ class Phrase:
 	end: float = 0
 	original: str = ''
 	romanized: str = ''
-	style: str = ''
 
 @dataclass
 class YoutubeVideo:
+	phrasesAnglaises: List[Phrase]
+	phrasesJaponaises: List[Phrase]
 	title: str = ''
 	id: str = ''
-	phrasesAnglaises: List[Phrase] = []
-	phrasesJaponaises: List[Phrase] = []
-	style: str = ''
+	languageCode: str = ''
 
 import sys
 sys.path.append('/Users/nicolas/Desktop/NaturaLingua')
-# from utils.utils import * #save_object, get_object, createNecessaryFolders
 import importlib
 import sys
-importlib.reload(sys.modules['utils.utils'])
+# importlib.reload(sys.modules['utils.utils'])
 from utils.utils import *
 
 
@@ -141,14 +141,14 @@ def youtubeToPhraseJap(youtubeSub):
 	start = youtubeSub['start']
 	duration = youtubeSub['duration']
 	end = start + duration
-	return Phrase(start, original, end)
+	return Phrase(start=start, original=original, end=end)
 
 # https://testdriven.io/blog/flask-async/
 # async
-def youtubeToPhraseJap_all(youtubeSubs, language):
+def youtubeToPhraseJap_all(youtubeSubs, languageCode):
 	l = list(map(youtubeToPhraseJap, youtubeSubs))
 	# import pdb; pdb.set_trace()
-	transliterateList(l, language) # await
+	transliterateList(l, languageCode) # await
 	return l
 
 # ====================
@@ -186,7 +186,7 @@ def youtubeToPhraseAng(youtubeSub, language):
 		text = phraseRemoveJapaneseCharacters(text)
 	elif(language in ['he','he-IL','heb','iw']):
 		text = phraseRemoveHebrewCharacters(text)
-	return Phrase(start, text, end)
+	return Phrase(start=start, original=text, end=end)
 
 def youtubeToPhraseAng_all(youtubeSubs, language):
 	return list(map(lambda sub: youtubeToPhraseAng(sub, language), youtubeSubs))
@@ -288,7 +288,7 @@ def absorbYoutubeVideo(videoId, language, languageKnown, alphabetId):
 	print('%s youpi' % videoId)
 	phrasesJaponaises = youtubeToPhraseJap_all(transcriptJaponais, languageCode) # await
 	phrasesAnglaises = youtubeToPhraseAng_all(transcriptAnglais, languageCode)
-	myYoutubeVideo = YoutubeVideo('', videoId, phrasesAnglaises, phrasesJaponaises, languageCode)
+	myYoutubeVideo = YoutubeVideo(title='', id=videoId, phrasesAnglaises=phrasesAnglaises, phrasesJaponaises=phrasesJaponaises, languageCode=languageCode)
 	return myYoutubeVideo
 
 
@@ -306,15 +306,18 @@ def writeYoutubeVideo(video, outputDir, alphabetId, language):
 	myPdf = createPdfYoutube(video.id, txtFileName, pdfFileName, language, alphabetId)
 
 
-def absorbAndWriteYoutubeVid(videoId, language, 
-    languageKnown='english', 
-    alphabetId='roman',
-	  rootDir='/Users/nicolas/Desktop/NaturaLingua/directoryYoutube'):
+def absorbAndWriteYoutubeVid(
+	videoId='kP15q815Saw',
+	language='persian',
+	languageKnown='english',
+	alphabetId='roman',
+	rootDir='/Users/nicolas/Desktop/NaturaLingua/directoryYoutube'
+):
 	outputDir=f'{rootDir}/{language.capitalize()}'
 	video = absorbYoutubeVideo(videoId, language, languageKnown, alphabetId)
 	writeYoutubeVideo(video, outputDir, alphabetId, language)
 
-
+# absorbAndWriteYoutubeVid()
 
 ###########################
 #    whole ytb channels   #
@@ -327,7 +330,7 @@ languageToChannels={
 	'tagalog':['In a nutshell'],
 	'french':['Piece of French', 'In a nutshell'],
 	'greek':['Astronio','Easy Do Channel','Mikeius Official','Panos Ioannidis','Καθημερινή Φυσική', 'In a nutshell'],
-	'hebrew':['Piece of French', 'In a nutshell'],
+	'hebrew':['Piece of Hebrew', 'In a nutshell'],
 	'hindi':['Carry Minati','In a nutshell'],
 	'italian':['Dario Bressanini','Italia Squisita','Learn Italian with Lucrezia', 'In a nutshell'],
 	'japanese':['Ask Japanese','Kan and Aki','Kemushi Chan','Meshclass','Miku Real Japanese','Onomappu','Suchi Ramen Riku','Tokyo Veg Life', 'In a nutshell'],

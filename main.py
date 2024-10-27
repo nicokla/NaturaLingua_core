@@ -2,7 +2,7 @@
 import sys
 sys.path.append("/Users/nicolas/Desktop/NaturaLingua")
 from transliterateHehe.languageCodes import languageToCodes, getCode
-from youtube.youtube import createDocsFromYoutube, absorbYoutubeChannels
+from youtube.youtube import *
 from movies.movies import subsToTxt
 from utils.createPdfs import createPdfYoutube, createPdfMovie
 
@@ -69,16 +69,21 @@ absorbAndWriteYoutubeVid(videoId, language, languageKnown, alphabetId, outputDir
 # --------------------------
 
 
-language = 'arabic'
+language = 'hebrew'
+languageKnown = 'french'
 channelName = languageToChannels[language][0]
-
-listAllVideoIds = absorbChannel(channelName, language)
-
-outputDir = '/Users/nicolas/Desktop/NaturaLingua/directoryYoutube'
 fileName = f'{outputDir}/{language.capitalize()}/{channelName}.json'
+
+# load useful videos (those with subtitles in both languages)
+listAllVideoIds = absorbChannel(channelName, language, languageKnown)
+outputDir = '/Users/nicolas/Desktop/NaturaLingua/directoryYoutube'
 saveVariableAsJson(listAllVideoIds, fileName)
+
+# if you already loaded the useful videos
 listAllVideoIds = loadJsonToVariable(fileName)
 
+# create documents for 10 first useful videos
+alphabetId='both'
 for videoId in listAllVideoIds[:10]:
 	print(videoId)
-	absorbAndWriteYoutubeVid(videoId, language, alphabetId='roman')
+	absorbAndWriteYoutubeVid(videoId, language, languageKnown, alphabetId, outputDir)
